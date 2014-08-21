@@ -3,8 +3,10 @@ function [Lambda,Y] = directSLP(q,L,N)
     v = @(xi) (L/pi)^2 * feval(q,(L/pi)*(xi - pi )) ;
     % Compute the matrix for the second derivative
     D = _directSLP_inner2(N) ; 
+    % Calculate the value of v on the nodes
+    V = feval(v, linspace (0, 2*pi, N+1) ) ;
     % Resolve the problem and get the eigenvalues and eigenvectors (coordinate of the eigenfunctions in the FPM base)
-    [ E, y] = _directSLP_inner1(D,v) ;
+    [ E, y] = _directSLP_inner1(D,V) ;
     % Get the eigenfunctions as functions
     %yf = _directSLP_FPMbase(N) * y ;
     yf = @(t) 0 ; %FIXME
@@ -12,4 +14,4 @@ function [Lambda,Y] = directSLP(q,L,N)
     Lambda = (pi/L)^2 * E ; 
     Y = @(x) feval(yf, pi/L*(x+L)) ; 
 end
-    
+
