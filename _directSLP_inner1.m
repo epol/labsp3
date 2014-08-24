@@ -9,4 +9,5 @@ function [ E, Y] = _directSLP_inner1(D,V)
     M = - D(2:end-1,2:end-1) + diag(vir);
     [Y,D] = eig(M);
     E = diag(D) ;
+    E = E(:) ;
 end
