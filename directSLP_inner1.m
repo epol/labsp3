@@ -1,4 +1,4 @@
-function [ E, Y] = _directSLP_inner1(D,V)
+function [ E, Y] = directSLP_inner1(D,V)
     % D is D^(2).
     % v is the rescaled potential function
     N = length(V) - 1;

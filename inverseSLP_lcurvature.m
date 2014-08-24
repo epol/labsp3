@@ -1,4 +1,4 @@
-function kappa = _inverseSLP_lcurvature(W,T,Beta,Sigma)
+function kappa = inverseSLP_lcurvature(W,T,Beta,Sigma)
     % kappa(alpha) with alpha a row
     
     %TODO: controllare TUTTO

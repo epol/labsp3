@@ -10,7 +10,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol)
     % choose the initial potential vector 
     vk = zeros(M,1) ;  % TODO: there are a better choice?
     % we don't need to compute the differentiation every time
-    D = _directSLP_inner2(N-1);
+    D = directSLP_inner2(N-1);
     
     % main cycle
     k = 0 ;
@@ -22,7 +22,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol)
         vext(M+1:2*M) = flipud(vk) ;
         vext(2*M+1) = 0;
         % resolve the direct problem in this case
-        [ Ek, Yk] = _directSLP_inner1(D,vext) ;
+        [ Ek, Yk] = directSLP_inner1(D,vext) ;
         Tk = Ek(1:M) - E ;
         % calculate the Jacobian matrix using the formula a_{mn} = 2(y_{n;m})^2 
         Ak = 2 * ((Yk(1:M,1:M))').^2 ;  %TODO: is this correct? I don't think so
@@ -36,7 +36,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol)
         
         % Tikhonov regularization
         Beta = ones(M,1) ;
-        kappa = _inverseSLP_lcurvature(W,Tk,Beta,Sigmav) ; 
+        kappa = inverseSLP_lcurvature(W,Tk,Beta,Sigmav) ; 
         alpha = fminbnd(kappa,1e-10,1e-1)  %TODO: something better?
         
         % Find Delta

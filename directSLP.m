@@ -2,11 +2,11 @@ function [Lambda,Y] = directSLP(q,L,N)
     % Transform the potential function from [ -L , + L ] to [ 0 , 2pi]
     v = @(xi) (L/pi)^2 * feval(q,(L/pi)*(xi - pi )) ;
     % Compute the matrix for the second derivative
-    D = _directSLP_inner2(N) ; 
+    D = directSLP_inner2(N) ; 
     % Calculate the value of v on the nodes
     V = feval(v, linspace (0, 2*pi, N+1) ) ;
     % Resolve the problem and get the eigenvalues and eigenvectors (coordinate of the eigenfunctions in the FPM base)
-    [ E, y] = _directSLP_inner1(D,V) ;
+    [ E, y] = directSLP_inner1(D,V) ;
     % Get the eigenfunctions as functions
     %yf = _directSLP_FPMbase(N) * y ;
     yf = @(t) 0 ; %FIXME
