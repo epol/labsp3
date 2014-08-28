@@ -7,15 +7,16 @@ function q=inverseSLP(L,Lambda,Kmax,tol)
     E = (L/pi)^2 * Lambda ;
     % nodes
     Xi = 2*pi/(2*M+1)*(1:M) ;
+    Xi = Xi(:) ;
     % choose the initial potential vector 
-    vk = zeros(M,1) ;  % TODO: there are a better choice?
+    vk = zeros(M,1) ;  % TODO: there are a better choice? They suggest a q + b, so maybe this should be an argument for this function
     % we don't need to compute the differentiation every time
     D = directSLP_inner2(N-1);
     
     % main cycle
     k = 0 ;
-    Deltavk = 2*vk*tol ;
-    while ((norm(Deltavk) >= norm(tol * vk)) && (k <= Kmax )) %FIXME: use norms
+    Deltavk = 2*vk*tol ; % a way to implement a "do while"
+    while ((norm(Deltavk) >= norm(tol * vk)) && (k <= Kmax )) %FIXME: additional stopping condition if we know noise level
         % extend v with symmetry
         vext(1) = 0 ;
         vext(2:M+1) = vk ;
@@ -23,35 +24,41 @@ function q=inverseSLP(L,Lambda,Kmax,tol)
         vext(2*M+1) = 0;
         % resolve the direct problem in this case
         [ Ek, Yk] = directSLP_inner1(D,vext) ;
+        
         Tk = Ek(1:M) - E ;
+        
+        %DEBUG
+        normTk = norm(Tk)
+        
         % calculate the Jacobian matrix using the formula a_{mn} = 2(y_{n;m})^2 
-        Ak = 2 * ((Yk(1:M,1:M))').^2 ;  %TODO: is this correct? I don't think so
-        % TODO: approximate Deltavk with TP regularization
-        % DEBUG
-        condAk = cond(Ak)
+        Ak = 2 * ((Yk(1:M,1:M))').^2 ;
         
         % SVD of Ak
         [ W , Sigma, U ] = svd(Ak) ;
         Sigmav = diag(Sigma) ;
         
         % Tikhonov regularization
-        Beta = ones(M,1) ;
-        kappa = inverseSLP_lcurvature(W,Tk,Beta,Sigmav) ; 
-        alpha = fminbnd(kappa,1e-10,1e-1)  %TODO: something better?
+        Beta = ones(M,1) ; %TODO: D = W * Beta * U' should be the second order hermite differntation matrix to favor smooth solutions
+        %Beta = min(100*ones(M,1),ones(M,1)./Sigmav) 
+        
+        % calculate the regularization parameter with the L-curve method
+        alpha = inverseSLP_splinelcurvature(W,Tk,Beta,Sigmav) 
+        
+        % OLD
+        %alpha = fminbnd(kappa,1e-7,1e1)  %TODO: something better?
+        
         
         % Find Delta
-        %Deltavk = U * (Sigmav ./ ( Sigmav .^2 + alpha * Beta .^2) .* (W' *Tk)  ) ;
-        Deltavk = ridge(Tk,Ak,Beta) ; 
+        Deltavk = U * (Sigmav ./ ( Sigmav .^2 + alpha * Beta .^2) .* (W' *Tk)  ) ;
         
-        %DEBUG
-        before = norm(Ak*vk - Tk )
+        % Calculate the new point        
         vk = vk - Deltavk ;
-        %DEBUG
-        after = norm(Ak*vk - Tk)
-        
-        vk = vk - Deltavk ;
-        k = k+1
+        k = k+1 ;
         %Deltavk >= tol*vk 
     end
+    
+    % TODO give a nice rescaled output, or a function.
     q = vk ;
+    
 end
+

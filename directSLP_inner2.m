@@ -1,4 +1,5 @@
 function D = directSLP_inner2(N)
+    % returns the second derivate matrix for a problem with dimension N
     rif = ones(N+1,1)*(0:N) ; 
     rif = rif' - rif ; 
     % rif is now a (N+1)x(N+1) matrix with rif(k,j)=k-j
