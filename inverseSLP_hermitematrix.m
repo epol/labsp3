@@ -30,7 +30,8 @@ function D = inverseSLP_hermitematrix(xi)
     
     % calculate the matrix for the second derivatives at the grid point
     % S2 takes care of the shifts, M for the i(i-1) coefficients
-    S2(:,3:n) = eye(n) (:,1:n-2) ;
+    eyen = eye(n) ; % because matlab refuses to run eye(n)(:,1:n-2)
+    S2(:,3:n) = eyen (:,1:n-2) ;
     M = diag((0:n-1)) .* diag( cat( 2,[0],(0:n-2))) ;
     
     D = H * S2 * M * inv(H) ;
