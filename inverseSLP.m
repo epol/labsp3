@@ -1,4 +1,16 @@
-function q=inverseSLP(L,Lambda,Kmax,tol)
+function q=inverseSLP(L,Lambda,Kmax,tol,v0)
+
+    %NEW: regtools
+    addpath('./regu')
+    
+    if nargin < 4
+        error('Too few parameters')
+    end
+    if nargin < 5
+        v0 = zeros(length(Lambda),1)
+    end
+    
+    
     M = length(Lambda) ;
     N = 2*M +1 ;
     % force the Lambda vector to be a column
@@ -9,7 +21,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol)
     Xi = 2*pi/(2*M+1)*(1:M) ;
     Xi = Xi(:) ;
     % choose the initial potential vector 
-    vk = zeros(M,1) ;  % TODO: there are a better choice? They suggest a q + b, so maybe this should be an argument for this function
+    vk = v0 ;  % TODO: there are a better choice? They suggest a q + b, so maybe this should be an argument for this function
     % we don't need to compute the differentiation every time
     D = directSLP_inner2(N-1);
     
@@ -34,22 +46,40 @@ function q=inverseSLP(L,Lambda,Kmax,tol)
         Ak = 2 * ((Yk(1:M,1:M))').^2 ;
         
         % SVD of Ak
-        [ W , Sigma, U ] = svd(Ak) ;
-        Sigmav = diag(Sigma) ;
+        %[ W , Sigma, U ] = svd(Ak) ;
+        %Sigmav = diag(Sigma) ;
         
         % Tikhonov regularization
-        Beta = ones(M,1) ; %TODO: D = W * Beta * U' should be the second order hermite differntation matrix to favor smooth solutions
+        %Beta = ones(M,1) ; %TODO: D = W * Beta * U' should be the second order hermite differntation matrix to favor smooth solutions
         %Beta = min(100*ones(M,1),ones(M,1)./Sigmav) 
         
         % calculate the regularization parameter with the L-curve method
-        alpha = inverseSLP_splinelcurvature(W,Tk,Beta,Sigmav) 
+        %alpha = inverseSLP_lcurvature(W,Tk,Beta,Sigmav) 
         
         % OLD
         %alpha = fminbnd(kappa,1e-7,1e1)  %TODO: something better?
         
+        % NEW try with library
+        %% computer the differntation matrix
+        %%% hermite
+        %scale = herroots(M);
+        %scale = scale(M)/pi;
+        %[r,DiffMat] = herdif(M,2,scale) ;
+        %%% poly
+        DiffMat = poldif(Xi,3);
+        DiffMat = DiffMat(:,:,3) ;
+        %% svd and gsvd 
+        %[ W, Sigma, U ] = csvd(Ak);
+        [ WW, SigmaM, XX] = cgsvd(Ak,DiffMat) ;
+        %% find the optimal parameter
+        [reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
+        %% compute the transformation
+        Deltavk = tikhonov(WW,SigmaM,XX,Tk,reg_corner) ;
+        pause
+        
         
         % Find Delta
-        Deltavk = U * (Sigmav ./ ( Sigmav .^2 + alpha * Beta .^2) .* (W' *Tk)  ) ;
+        %Deltavk = U * (Sigmav ./ ( Sigmav .^2 + alpha * Beta .^2) .* (W' *Tk)  ) ;
         
         % Calculate the new point        
         vk = vk - Deltavk ;

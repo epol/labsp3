@@ -107,7 +107,9 @@
   A = W \Sigma U ^T \\
   D^T D \Delta v = \sum _{m=1} ^ M \beta _m ^2 \ang{ \delta v , u_m }
   u_m \\
-  D = WBU^T
+  D = C U^T \\ 
+  C^T C = B ^2 \\
+  B = diag( \beta _1 , ... , \beta _M) 
 \end{align*}
 
 
@@ -139,104 +141,185 @@
 \end{align*}
 
 \begin{align*}
-  \rho (\alpha) = & \log \sqrt { \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{
-        \frac{\sigma _m ^2}{ \sigma
-          _m ^2 + \alpha \beta _m ^2 } - 1 } } ^2  } = \\
-  = & \frac{1}{2} \log { \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{
-        \frac{\sigma _m ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 } - 1 }
-    } ^2 }
+  f_m(\alpha) = & \bra{ \ang{w_m, T} \pa{ \frac{\sigma _m ^2}{ \sigma
+        _m ^2 + \alpha \beta _m ^2 } - 1 } } ^2 = \ang{w_m, T} ^2
+  \frac{\alpha ^2 \beta _m ^ 4}{ \pa { \sigma _m ^2 + \alpha \beta _m
+      ^2 } ^2 }
 \end{align*}
 
 \begin{align*}
-  \rho ' (\alpha) = & \frac{1}{2} \frac{\sum _{m=1} ^M 2
-    \bra{\ang{w_m, T} \pa{ \frac{\sigma _m ^2}{ \sigma _m ^2 + \alpha
-          \beta _m ^2 } - 1}\bra{- \ang{w_m, T} \sigma _m ^2
-        \frac{\beta _m ^2}{\pa{\sigma _m ^2 + \alpha \beta_m ^2}^2} }
-    }} { \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{ \frac{\sigma _m ^2}{
-          \sigma
-          _m ^2 + \alpha \beta _m ^2 } - 1 }  } ^2  } = \\
-  = & \frac{\sum _{m=1} ^M \ang{w_m, T}^2 \bra{ \frac{\alpha \beta _m
-        ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 } \frac{ \sigma _m ^2
-        \beta _m ^2}{\pa{\sigma _m ^2 + \alpha \beta_m ^2}^2} }} {
-    \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{ \frac{\sigma _m ^2}{ \sigma
-          _m ^2 + \alpha \beta _m ^2 } - 1 }  } ^2  } = \\
-  = & - \frac{\sum _{m=1} ^M \ang{w_m, T}^2 \bra{ \frac{\alpha \sigma _m
-        ^2 \beta _m ^4}{\pa{\sigma _m ^2 + \alpha \beta_m ^2}^3} }} {
-    \sum _{m=1} ^M \bra{ \ang{w_m, T}  \frac{\alpha \beta _m ^2}{ \sigma
-          _m ^2 + \alpha \beta _m ^2 }   } ^2  } \\
+  f_m ' (\alpha) = & -2 \ang{w_m, T} ^2 \frac{ \alpha \beta _m ^2}{
+    \sigma _m ^2 + \alpha \beta _m ^2} \frac{ \sigma _m ^2 \beta _m ^2
+  } { \pa { \sigma _m ^2 + \alpha \beta _m ^2 } ^2 } = \\
+  = & -2 \ang{w_m, T} ^2 \frac{\alpha \sigma _m ^2 \beta _m ^4 }{ \pa
+    { \sigma _m ^2 + \alpha \beta _m ^2 } ^3 } = \\
+  = & -2 \frac{\sigma _m ^2 }{\alpha \pa { \sigma _m ^2 + \alpha \beta
+      _m ^2 } } f_m(\alpha) 
 \end{align*}
 
 \begin{align*}
-  \rho '' (\alpha) = & - \frac{ \bra{\sum _{m=1} ^M \pa{ \ang{w_m, T}
-        \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 }
-      } ^2} \bra{ \sum _{m=1} ^M \ang{w_m, T}^2 \frac{\sigma _m ^2
-        \beta _m ^4 \pa{ \sigma _m ^2 + \alpha \beta _m ^2 } ^3 -3
-        \pa{ \sigma _m ^2 + \alpha \beta _m ^2} ^2 \beta_m ^2 \alpha
-        \sigma _m ^2 \beta _m ^4 }{\pa{ \sigma _m ^2 + \alpha \beta _m
-          ^2 }^6} }}{\bra{\sum _{m=1} ^M \pa{
-        \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha
-          \beta _m ^2 } } ^2} ^2} + \\
-  & + \frac{\bra{2\sum _{m=1} ^M \ang{w_m, T}^2 \pa{
-        \frac{\alpha \sigma _m ^2 \beta _m ^4}{\pa{\sigma _m ^2 +
-            \alpha \beta_m ^2}^3} }}^2 } {\bra{\sum _{m=1} ^M \pa{
-        \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha
-          \beta _m ^2 } } ^2} ^2 } = \\
-  = & \frac{ \bra{2\sum _{m=1} ^M \ang{w_m, T}^2 \pa{
-        \frac{\alpha \sigma _m ^2 \beta _m ^4}{\pa{\sigma _m ^2 +
-            \alpha \beta_m ^2}^3} }}^2 - \bra{\sum _{m=1} ^M \pa{ \ang{w_m, T}
-        \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 }
-      } ^2} \bra{ \sum _{m=1} ^M \ang{w_m, T}^2 \frac{\sigma _m ^2
-        \beta _m ^4 \pa{ \sigma _m ^2 -2 \alpha \beta _m ^2  }
-        }{\pa{ \sigma _m ^2 + \alpha \beta _m
-          ^2 }^4} }}{\bra{\sum _{m=1} ^M \pa{
-        \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha
-          \beta _m ^2 } } ^2} ^2}
+  f_m '' (\alpha) = & -2 \ang{w_m, T} ^2 \sigma _m ^2 \beta _m ^4
+  \frac{\pa { \sigma _m ^2 + \alpha \beta _m ^2 } ^3 - 3\alpha \beta
+    _m ^2\pa { \sigma _m ^2 + \alpha \beta _m ^2 } ^2 }{\pa { \sigma
+      _m ^2 + \alpha \beta _m ^2 } ^6} = \\
+  = & -2 \ang{w_m, T} ^2 \frac{ \sigma _m ^2 \beta _m ^4 \pa { \sigma
+      _m ^2 -2 \alpha \beta _m ^2 } }{\pa { \sigma _m ^2 + \alpha
+      \beta _m ^2 } ^ 4} = \\
+  = & \frac{\pa { \sigma _m ^2 -2 \alpha \beta _m ^2 }}{\alpha
+    \pa{\sigma _m ^2 + \alpha \beta _m ^2}} f_m ' (\alpha)
 \end{align*}
 
 \begin{align*}
-  f(\alpha) = \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{ \frac{\sigma _m
-        ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 } - 1 } } ^2 =  \sum
-  _{m=1} ^M \bra{ \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2
-        + \alpha \beta _m ^2 }  } ^2
+  \rho (\alpha) = & \log \bar \rho (\alpha) =\\
+  = & \log \sqrt { \sum _{m=1} ^M f_m (\alpha) } = \\
+  = & \frac{1}{2} \log \sum _{m=1} ^M f_m ( \alpha)
 \end{align*}
 
 \begin{align*}
-  f ' (\alpha) = - 2 \sum _{m=1} ^M \ang{w_m, T}^2 \bra{ \frac{\alpha
-      \sigma _m ^2 \beta _m ^4}{\pa{\sigma _m ^2 + \alpha \beta_m
-        ^2}^3} }
+  \rho ' (\alpha) = & \frac{1}{2} \frac{\sum _{m=1} ^M f_m
+    '(\alpha)}{\sum _{m=1} ^M f_m ( \alpha)}
 \end{align*}
 
 \begin{align*}
-  f '' (\alpha) = -2 \sum _{m=1} ^M \ang{w_m, T}^2 \frac{\sigma _m ^2
-        \beta _m ^4 \pa{ \sigma _m ^2 -2 \alpha \beta _m ^2  }
-        }{\pa{ \sigma _m ^2 + \alpha \beta _m
-          ^2 }^4}
+  \rho '' (\alpha) = & \frac{1}{2} \frac{ \pa{\sum _{m=1} ^M f_m ''
+      (\alpha)}\pa{ \sum _{m=1} ^M f_m ( \alpha) } - \pa{ \sum _{m=1} ^M
+      f_m ' ( \alpha) } ^2 }{\pa{\sum _{m=1} ^M f_m (\alpha)} ^2}
 \end{align*}
 
-\begin{align*}
-  \rho '(\alpha) = \frac{1}{2} \frac{f'(\alpha)}{\sqrt{f(\alpha)}}
-\end{align*}
 
-\begin{align*}
-  \rho ''(\alpha) = \frac{1}{4} \frac{2 f''(\alpha) f(\alpha) - \pa{
-      f'(\alpha)} ^2 }{\pa{f(\alpha)} ^{\sfrac{3}{2}}}
-\end{align*}
+% \begin{align*}
+%   \rho (\alpha) = & \log \sqrt { \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{
+%         \frac{\sigma _m ^2}{ \sigma
+%           _m ^2 + \alpha \beta _m ^2 } - 1 } } ^2  } = \\
+%   = & \frac{1}{2} \log { \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{
+%         \frac{\sigma _m ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 } - 1 }
+%     } ^2 }
+% \end{align*}
 
+% \begin{align*}
+%   \rho ' (\alpha) = & \frac{1}{2} \frac{\sum _{m=1} ^M 2
+%     \bra{\ang{w_m, T} \pa{ \frac{\sigma _m ^2}{ \sigma _m ^2 + \alpha
+%           \beta _m ^2 } - 1}\bra{- \ang{w_m, T} \sigma _m ^2
+%         \frac{\beta _m ^2}{\pa{\sigma _m ^2 + \alpha \beta_m ^2}^2} }
+%     }} { \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{ \frac{\sigma _m ^2}{
+%           \sigma
+%           _m ^2 + \alpha \beta _m ^2 } - 1 }  } ^2  } = \\
+%   = & \frac{\sum _{m=1} ^M \ang{w_m, T}^2 \bra{ \frac{\alpha \beta _m
+%         ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 } \frac{ \sigma _m ^2
+%         \beta _m ^2}{\pa{\sigma _m ^2 + \alpha \beta_m ^2}^2} }} {
+%     \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{ \frac{\sigma _m ^2}{ \sigma
+%           _m ^2 + \alpha \beta _m ^2 } - 1 }  } ^2  } = \\
+%   = & - \frac{\sum _{m=1} ^M \ang{w_m, T}^2 \bra{ \frac{\alpha \sigma _m
+%         ^2 \beta _m ^4}{\pa{\sigma _m ^2 + \alpha \beta_m ^2}^3} }} {
+%     \sum _{m=1} ^M \bra{ \ang{w_m, T}  \frac{\alpha \beta _m ^2}{ \sigma
+%           _m ^2 + \alpha \beta _m ^2 }   } ^2  } \\
+% \end{align*}
+
+% \begin{align*}
+%   \rho '' (\alpha) = & - \frac{ \bra{\sum _{m=1} ^M \pa{ \ang{w_m, T}
+%         \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 }
+%       } ^2} \bra{ \sum _{m=1} ^M \ang{w_m, T}^2 \frac{\sigma _m ^2
+%         \beta _m ^4 \pa{ \sigma _m ^2 + \alpha \beta _m ^2 } ^3 -3
+%         \pa{ \sigma _m ^2 + \alpha \beta _m ^2} ^2 \beta_m ^2 \alpha
+%         \sigma _m ^2 \beta _m ^4 }{\pa{ \sigma _m ^2 + \alpha \beta _m
+%           ^2 }^6} }}{\bra{\sum _{m=1} ^M \pa{
+%         \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha
+%           \beta _m ^2 } } ^2} ^2} + \\
+%   & + \frac{\bra{2\sum _{m=1} ^M \ang{w_m, T}^2 \pa{
+%         \frac{\alpha \sigma _m ^2 \beta _m ^4}{\pa{\sigma _m ^2 +
+%             \alpha \beta_m ^2}^3} }}^2 } {\bra{\sum _{m=1} ^M \pa{
+%         \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha
+%           \beta _m ^2 } } ^2} ^2 } = \\
+%   = & \frac{ \bra{2\sum _{m=1} ^M \ang{w_m, T}^2 \pa{
+%         \frac{\alpha \sigma _m ^2 \beta _m ^4}{\pa{\sigma _m ^2 +
+%             \alpha \beta_m ^2}^3} }}^2 - \bra{\sum _{m=1} ^M \pa{ \ang{w_m, T}
+%         \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 }
+%       } ^2} \bra{ \sum _{m=1} ^M \ang{w_m, T}^2 \frac{\sigma _m ^2
+%         \beta _m ^4 \pa{ \sigma _m ^2 -2 \alpha \beta _m ^2  }
+%         }{\pa{ \sigma _m ^2 + \alpha \beta _m
+%           ^2 }^4} }}{\bra{\sum _{m=1} ^M \pa{
+%         \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2 + \alpha
+%           \beta _m ^2 } } ^2} ^2}
+% \end{align*}
+
+% \begin{align*}
+%   f(\alpha) = \sum _{m=1} ^M \bra{ \ang{w_m, T} \pa{ \frac{\sigma _m
+%         ^2}{ \sigma _m ^2 + \alpha \beta _m ^2 } - 1 } } ^2 =  \sum
+%   _{m=1} ^M \bra{ \ang{w_m, T} \frac{\alpha \beta _m ^2}{ \sigma _m ^2
+%         + \alpha \beta _m ^2 }  } ^2
+% \end{align*}
+
+% \begin{align*}
+%   f ' (\alpha) = - 2 \sum _{m=1} ^M \ang{w_m, T}^2 \bra{ \frac{\alpha
+%       \sigma _m ^2 \beta _m ^4}{\pa{\sigma _m ^2 + \alpha \beta_m
+%         ^2}^3} }
+% \end{align*}
+
+% \begin{align*}
+%   f '' (\alpha) = -2 \sum _{m=1} ^M \ang{w_m, T}^2 \frac{\sigma _m ^2
+%         \beta _m ^4 \pa{ \sigma _m ^2 -2 \alpha \beta _m ^2  }
+%         }{\pa{ \sigma _m ^2 + \alpha \beta _m
+%           ^2 }^4}
+% \end{align*}
+
+% \begin{align*}
+%   \rho '(\alpha) = \frac{1}{2} \frac{f'(\alpha)}{\sqrt{f(\alpha)}}
+% \end{align*}
+
+% \begin{align*}
+%   \rho ''(\alpha) = \frac{1}{4} \frac{2 f''(\alpha) f(\alpha) - \pa{
+%       f'(\alpha)} ^2 }{\pa{f(\alpha)} ^{\sfrac{3}{2}}}
+% \end{align*}
+
+\newpage
 \subsection{$\eta$}
 
 \begin{align*}
   \obar{\eta}^2(\alpha ) = & \norm{ \alpha D \Delta v } _2 ^2 =  \\
-  = & \norm{ \alpha WBU^T \Delta v } _2 ^2 =\\
-  = & \norm{ \alpha B U^T \Delta v } _2 ^2 =\\
-  = & \norm{ \sum _{m=1} ^M \beta _m \ang{ u_m , \Delta v} e_m } _2 ^2
-  = \\
-  = & \sum _{m=1} ^M \bra{ \beta _m \ang{ u_m , \Delta v} } ^2 = \\
-  = & \sum _{m=1} ^M \bra{ \beta _m \ang{ u_m , \sum _{n=1} ^M \sigma
-      _n g_\alpha \pa{\sigma_n ^2 } \ang{T,w_n} u_n} } ^2 = \\
-  = & \sum _{m=1} ^M \bra{ \beta _m \sigma
-    _m g_\alpha \pa{\sigma_m ^2 } \ang{T,w_m}  } ^2 = \\
-  = & \sum _{m=1} ^M \bra{ \frac{ \beta _m \sigma
-    _m}{\sigma _m ^2 + \alpha \beta _m ^2}  \ang{T,w_m}  } ^2 \\
+  = & \norm{ \alpha C U^T \Delta v} _2 ^2 =\\
+  = & \norm{ \alpha C U^T \sum _{m=1} ^M \sigma _m g_\alpha \pa{\sigma_m ^2 }
+    \ang{T,w_m} u_m } _2 ^2 =\\
+  = & \norm{ \alpha C \sum _{n=1} ^M \sum _{m=1} ^M \sigma _m g_\alpha
+    \pa{\sigma_m ^2 }
+    \ang{T,w_m} \ang{u_n,u_m} e_n } _2 ^2 =\\
+  = & \norm{ \alpha C \sum _{m=1} ^M \sigma _m g_\alpha \pa{\sigma_m ^2 }
+    \ang{T,w_m} e_m } _2 ^2 =\\
+  = & \norm{ C \sum _{m=1} ^M \alpha \frac{\sigma _m}{ \sigma _m ^2 + \alpha
+      \beta _m ^2 } \ang{T,w_m} e_m } _2 ^2 
+\end{align*}
+
+\begin{align*}
+  h_m (\alpha) = \alpha \frac{\sigma _m}{ \sigma _m ^2 + \alpha
+      \beta _m ^2 } \ang{T,w_m} 
+\end{align*}
+
+\begin{align*}
+  h(\alpha) = \sum _{m=1} ^M h_m (\alpha) e_m = \begin{pmatrix}
+    h_1 (\alpha) \\
+    h_2 (\alpha) \\
+    \vdots\\
+    h_M (\alpha)
+    \end{pmatrix}
+\end{align*}
+
+\begin{align*}
+   \obar{\eta}^2(\alpha ) = & \norm{ C h(\alpha) } _2 ^2 =\\
+   = & \norm{ \begin{pmatrix}
+     & & & & c^1 & & & & \\
+     \hline
+     & & & & c^2 & & & & \\
+     \hline
+     & & & & \vdots & & & & \\
+     \hline
+     & & & & c^M & & & &
+     \end{pmatrix} 
+     \begin{pmatrix}
+    h_1 (\alpha) \\
+    h_2 (\alpha) \\
+    \vdots\\
+    h_M (\alpha)
+    \end{pmatrix}
+    } _2 ^2
 \end{align*}
 
 \begin{align*}

@@ -41,15 +41,15 @@ function alpha0 = inverseSLP_lcurvature(W,T,Beta,Sigma)
     alpha0 = fminbnd(kappa,1e-15,1e-1) 
     
     %DEBUG
-    clf
-    hold on
+    %clf
+    %hold on
     alpha = linspace(1e-16, 1e1, 1000);
-    semilogy(sqrt(f(alpha)),sqrt(h(alpha)),'b')
+    %semilogy(sqrt(f(alpha)),sqrt(h(alpha)),'b')
     appa = kappa(alpha) ;
     appa = max(abs(sqrt(h(alpha))))/max(abs(appa)) * appa ;
     %plot(sqrt(f(alpha)),appa,'g')
     %DEBUG
-    semilogy(sqrt(f(alpha0)),sqrt(h(alpha0)),'r*')
-    pause
+    %semilogy(sqrt(f(alpha0)),sqrt(h(alpha0)),'r*')
+    %pause
     
 end
