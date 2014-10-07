@@ -2,6 +2,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
 
     %NEW: regtools
     addpath('./regu')
+    addpath('./dmsuite')
     
     if nargin < 4
         error('Too few parameters')
@@ -9,6 +10,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     if nargin < 5
         v0 = zeros(length(Lambda),1)
     end
+    v0 = v0(:);
     
     
     M = length(Lambda) ;
@@ -73,12 +75,11 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         %scale = scale(M)/pi;
         %[r,DiffMat] = herdif(M,2,scale) ;
         %%% poly
-        %DiffMat = poldif(Xi,3);
-        %DiffMat = DiffMat(:,:,3) ;
+        %DiffMat = poldif(Xi,2);
+        %DiffMat = DiffMat(:,:,2) ;
         %%% orginal differntiation matrix from the original problem
         DiffMat = D * extender;
         DiffMat = DiffMat(1:M);
-        
         %% svd and gsvd 
         %[ W, Sigma, U ] = csvd(Ak);
         size(Ak)
