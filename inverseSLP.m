@@ -25,6 +25,13 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     % we don't need to compute the differentiation every time
     D = directSLP_inner2(N-1);
     
+    %compute a matrix that extends the potential with symmetry
+    I = eye(M) ;
+    extender = [ I(1:end,:) ; zeros(1,M) ; flipud(I(1:end,:)) ];
+    
+    size(D)
+    size(extender)
+    
     % main cycle
     k = 0 ;
     Deltavk = 2*vk*tol ; % a way to implement a "do while"
@@ -66,10 +73,16 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         %scale = scale(M)/pi;
         %[r,DiffMat] = herdif(M,2,scale) ;
         %%% poly
-        DiffMat = poldif(Xi,3);
-        DiffMat = DiffMat(:,:,3) ;
+        %DiffMat = poldif(Xi,3);
+        %DiffMat = DiffMat(:,:,3) ;
+        %%% orginal differntiation matrix from the original problem
+        DiffMat = D * extender;
+        DiffMat = DiffMat(1:M);
+        
         %% svd and gsvd 
         %[ W, Sigma, U ] = csvd(Ak);
+        size(Ak)
+        size(DiffMat)
         [ WW, SigmaM, XX] = cgsvd(Ak,DiffMat) ;
         %% find the optimal parameter
         [reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
