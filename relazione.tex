@@ -11,6 +11,7 @@
 \usepackage[utf8x]{inputenc}
 \usepackage[italian]{babel}
 \usepackage{listings}
+\usepackage{MnSymbol}
 
 %\setlength{\parindent}{0in}
 
@@ -132,7 +133,102 @@ ai bordi $0,2\pi$ perché usiamo condizioni al contorno di Dirichlet,
 costruisce la matrice $M$ e ne calcola autovalori e autovettori
 utilizzando la funzione \lstinline{eig} di MATLAB.
 
+Le ultime operazioni che rimangonoda fare su \lstinline{directSLP}
+sono di riscalare autovalori.
 
+
+\section{Problema inverso}
+
+Per risolvere il probelma inverso aggiungiamo l'ipotesi che il
+potenziale, definito su $[-L,L]$ deve essere simmetrico rispetto a
+$0$. 
+
+Prendiamo in ingresso $M$ autovalori e ci proponiamo di risolvere il
+problema trovando il valore del potenziale su una griglia di $N +1 =
+2M+2$ punti esclusi i punti estremi (per motivi che saranno chiariti
+in seguito).
+
+Di nuovo rimappiamo il problema su $[0,2\pi]$, fissiamo la griglia
+$\xi _0, \xi _1, ..., \xi _N$ con $\xi _i = \frac{2\pi}{N}i$ e
+chiamiamo $v(\xi)$ il potenziale rimappato.
+
+Riscrivendo il problema diretto
+\begin{equation*}
+  D^{(2)} \begin{pmatrix}
+    y_0 \\
+    y_1 \\
+    \vdots \\
+    y_M \\
+    y_{M+1} \\
+    \vdots \\
+    y _{2M} \\
+    y _{2M+1} 
+  \end{pmatrix} 
+ + \begin{pmatrix}
+    v(\xi _0) \\
+    & v(\xi _1) \\
+    & & \ddots  \\
+    & & & v(\xi _M) \\
+    & & & & v(\xi _{M+1}) \\
+    & & & & & \ddots \\
+    & & & & & & v( \xi _ {2M} ) \\
+    & & & & & & & v(\xi _{2M+1}) 
+    \end{pmatrix}
+    \begin{pmatrix}
+    y_0 \\
+    y_1 \\
+    \vdots \\
+    y_M \\
+    y_{M+1} \\
+    \vdots \\
+    y _{2M} \\
+    y _{2M+1} 
+  \end{pmatrix}
+  = \lambda y
+\end{equation*}
+osseviamo che, essendo $y_0 = y_{2M+1} = 0$ perché abbiamo fissato
+condizioni al contorno di Dirichlet, nella relazione non compaiono i
+valori di $v(\xi _0)$ e $v(\xi _{2M+1})$. Per simmetria abbiamo $v(\xi
+_i) = v(\xi _{2M+1-i})$, quindi il vettore incognito del nostro
+probelma è
+\[
+v = 
+\begin{pmatrix}
+  v_1 \\
+  \vdots \\
+  v_M 
+\end{pmatrix}
+=
+\begin{pmatrix}
+  v(\xi _1) \\
+  \vdots \\
+  v(\xi _M )
+\end{pmatrix}
+\]
+
+Per passare da questo vettore ridotto al vettore ``completo'' si può
+usare la matrice \lstinline{extender} così definita
+\begin{lstlisting}
+  extender = [ 
+               zeros(1,M) ; 
+               eye(M) ;
+               flipud(eye(M)) ;
+               zeros(1,M)
+             ];
+\end{lstlisting}
+\begin{equation*}
+  extender =
+  \begin{pmatrix}
+    0 & & 0 \\
+    1 & & 0 \\
+    & \ddots & \\
+    0 & & 1 \\
+    0 & & 1 \\
+    & \udots & \\
+    1 & &0 \\
+    0 & & 0\\
+  \end{pmatrix}
+\end{equation*}
 
 
 \end{document}

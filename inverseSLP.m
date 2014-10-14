@@ -8,28 +8,28 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         error('Too few parameters')
     end
     if nargin < 5
-        v0 = zeros(length(Lambda),1)
+        v0 = zeros(length(Lambda),1);
     end
     v0 = v0(:);
     
     
     M = length(Lambda) ;
-    N = 2*M +1 ;
+    N = 2*M +1;
     % force the Lambda vector to be a column
     Lambda = Lambda(:) ;
     % transform the eigenvalues 
     E = (L/pi)^2 * Lambda ;
     % nodes
-    Xi = 2*pi/(2*M+1)*(1:M) ;
+    Xi = 2*pi/(N)*(1:M) ;
     Xi = Xi(:) ;
     % choose the initial potential vector 
     vk = v0 ;  % TODO: there are a better choice? They suggest a q + b, so maybe this should be an argument for this function
     % we don't need to compute the differentiation every time
-    D = directSLP_inner2(N-1);
+    D = directSLP_inner2(N);
     
     %compute a matrix that extends the potential with symmetry
     I = eye(M) ;
-    extender = [ I(1:end,:) ; zeros(1,M) ; flipud(I(1:end,:)) ];
+    extender = [ zeros(1,M) ; I(1:end,:) ;  flipud(I(1:end,:)) ; zeros(1,M)];
     
     size(D)
     size(extender)
@@ -39,10 +39,11 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     Deltavk = 2*vk*tol ; % a way to implement a "do while"
     while ((norm(Deltavk) >= norm(tol * vk)) && (k <= Kmax )) %FIXME: additional stopping condition if we know noise level
         % extend v with symmetry
-        vext(1) = 0 ;
-        vext(2:M+1) = vk ;
-        vext(M+1:2*M) = flipud(vk) ;
-        vext(2*M+1) = 0;
+        %vext(1) = 0 ;
+        %vext(2:M+1) = vk ;
+        %vext(M+1:2*M) = flipud(vk) ;
+        %vext(2*M+1) = 0;
+        vext = extender * vk;
         % resolve the direct problem in this case
         [ Ek, Yk] = directSLP_inner1(D,vext) ;
         
@@ -52,7 +53,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         normTk = norm(Tk)
         
         % calculate the Jacobian matrix using the formula a_{mn} = 2(y_{n;m})^2 
-        Ak = 2 * ((Yk(1:M,1:M))').^2 ;
+        Ak =  2*((Yk(2:M+1,1:M))').^2   ;
         
         % SVD of Ak
         %[ W , Sigma, U ] = svd(Ak) ;
@@ -71,19 +72,21 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         % NEW try with library
         %% computer the differntation matrix
         %%% hermite
-        %scale = herroots(M);
-        %scale = scale(M)/pi;
-        %[r,DiffMat] = herdif(M,2,scale) ;
+        scale = herroots(M);
+        scale = scale(M)/pi;
+        [r,DiffMat] = herdif(M,2,scale) ;
         %%% poly
         %DiffMat = poldif(Xi,2);
-        %DiffMat = DiffMat(:,:,2) ;
+        DiffMat = DiffMat(:,:,2) ;
         %%% orginal differntiation matrix from the original problem
-        DiffMat = D * extender;
-        DiffMat = DiffMat(1:M);
+        %DiffMat = D * extender;
+        %DiffMat = DiffMat(2:M+1,:);
+        %DiffMat = D(2:M+1,2:M+1);
+        %DiffMat = eye(M);
         %% svd and gsvd 
         %[ W, Sigma, U ] = csvd(Ak);
-        size(Ak)
-        size(DiffMat)
+        %sizeak = size(Ak)
+        %sizediffmat = size(DiffMat)
         [ WW, SigmaM, XX] = cgsvd(Ak,DiffMat) ;
         %% find the optimal parameter
         [reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
@@ -99,6 +102,8 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         vk = vk - Deltavk ;
         k = k+1 ;
         %Deltavk >= tol*vk 
+        plot(vk)
+        pause
     end
     
     % TODO give a nice rescaled output, or a function.
