@@ -8,7 +8,8 @@ function [ E, Y] = directSLP_inner1(D,V)
     vir = V(2:end-1) ; % feval(v,xir);
     
     M = - D(2:end-1,2:end-1) + diag(vir);
-    [Y,D] = eig(M);
+    [Yrid,D] = eig(M);
     E = diag(D) ;
     E = E(:) ;
+    Y = [ zeros(1,N-1) ; Yrid ; zeros(1,N-1) ];
 end
