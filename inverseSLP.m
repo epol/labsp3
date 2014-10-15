@@ -28,11 +28,26 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     D = directSLP_inner2(N);
     
     %compute a matrix that extends the potential with symmetry
-    I = eye(M) ;
-    extender = [ zeros(1,M) ; I(1:end,:) ;  flipud(I(1:end,:)) ; zeros(1,M)];
+    extender = [ zeros(1,M) ; eye(M) ;  flipud(eye(M)) ; zeros(1,M)];
     
     size(D)
     size(extender)
+    
+    % NEW try with library
+    %% computer the differntation matrix
+    %%% hermite
+    %scale = herroots(M);
+    %scale = scale(M)/pi;
+    scale=1
+    [r,DiffMat] = herdif(M,2,scale) ;
+    %%% poly
+    %DiffMat = poldif(Xi,2);
+    DiffMat = DiffMat(:,:,2) ;
+    %%% orginal differntiation matrix from the original problem
+    %DiffMat = D * extender;
+    %DiffMat = DiffMat(2:M+1,:);
+    %DiffMat = D(2:M+1,2:M+1);
+    %DiffMat = eye(M);
     
     % main cycle
     k = 0 ;
@@ -53,7 +68,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         normTk = norm(Tk)
         
         % calculate the Jacobian matrix using the formula a_{mn} = 2(y_{n;m})^2 
-        Ak =  2*((Yk(2:M+1,1:M))').^2   ;
+        Ak =  2*(((Yk(2:M+1,1:M))').^2) ;
         
         % SVD of Ak
         %[ W , Sigma, U ] = svd(Ak) ;
@@ -69,25 +84,12 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         % OLD
         %alpha = fminbnd(kappa,1e-7,1e1)  %TODO: something better?
         
-        % NEW try with library
-        %% computer the differntation matrix
-        %%% hermite
-        scale = herroots(M);
-        scale = scale(M)/pi;
-        [r,DiffMat] = herdif(M,2,scale) ;
-        %%% poly
-        %DiffMat = poldif(Xi,2);
-        DiffMat = DiffMat(:,:,2) ;
-        %%% orginal differntiation matrix from the original problem
-        %DiffMat = D * extender;
-        %DiffMat = DiffMat(2:M+1,:);
-        %DiffMat = D(2:M+1,2:M+1);
-        %DiffMat = eye(M);
+        
         %% svd and gsvd 
         %[ W, Sigma, U ] = csvd(Ak);
         %sizeak = size(Ak)
         %sizediffmat = size(DiffMat)
-        [ WW, SigmaM, XX] = cgsvd(Ak,DiffMat) ;
+        [ WW, SigmaM, XX, VV] = cgsvd(Ak,DiffMat) ;
         %% find the optimal parameter
         [reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
         %% compute the transformation

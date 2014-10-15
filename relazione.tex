@@ -102,8 +102,8 @@ Il primo passo è riscalare il potenziale dall'intervallo $[-L,L]$
 all'intervallo $[0,2\pi ]$ e poi calcolarlo su una griglia di $N+1$
 punti equispaziati sull'intervallo.
 \begin{lstlisting}
-v = @(xi) (L/pi)^2 * feval(q,(L/pi)*(xi - pi )) ;
-V = feval(v, linspace (0, 2*pi, N+1) ) ;
+  v = @(xi) (L/pi)^2 * feval(q,(L/pi)*(xi - pi )) ;
+  V = feval(v, linspace (0, 2*pi, N+1) ) ;
 \end{lstlisting}
 
 L'ultimo ingrediente che ci manca per poter risolvere il problema è la
@@ -229,6 +229,118 @@ usare la matrice \lstinline{extender} così definita
     0 & & 0\\
   \end{pmatrix}
 \end{equation*}
+
+Vediamo ora come è stato implementata la funzione per risolvere il
+probelma inverso
+
+La funzione per calcolare il problema inverso è:
+\begin{lstlisting}
+  function q=inverseSLP(L,Lambda,Kmax,tol,v0)
+\end{lstlisting}
+dove \lstinline{L} è il limite dell'intervallo, \lstinline{Lambda} è
+il vettore dei primi $M$ autovalori (ordinati in ordine decrescente),
+\lstinline{Kmax} è il massimo numero di iterazioni da eseguire,
+\lstinline{tol} è la tolleranza entro la quale si considera che la
+soluzione ha raggiunto un punto fisso. \lstinline{v0} è un parametro
+opzionale e rappresenta il potenziale iniziale da cui partire.
+
+\subsection{Implementazione: preliminari}
+
+Dopo aver incluso le librerie (\lstinline{regu} e
+\lstinline{dmsuite}), la funzione setta (se non è stato passato come
+argomento) il potenziale iniziale a $0$, riscala il problema da
+$[-L,L]$ trasformando gli autovalori e si calcola i punti griglia.
+
+Vengono precalcolate le seguenti matrici:
+\begin{itemize}
+\item La matrice di differenziazione $D^{(2)}$ che viene salvata in
+  \lstinline{D}
+\item La matrice \lstinline{extender} che estende il potenziale per
+  simmetria
+\item La matrice di penalizzazione \lstinline{PenMat}
+\end{itemize}
+
+Le prime due matrici sono semplici da costruire, per la prima basta
+usare la funzione \lstinline{directSLP_inner2} e per la seconda la
+  costruzione è già stata illustrata precedentemente.
+
+Per la terza si fa BOH ???? TODO TODO TODO ma TODO un casino.
+
+Prima di entrare nel ciclo vengongo inizializzate le variabili fra cui
+il vettore del potenziale candidato \lstinline{vk} e la variabile di
+conteggio cicli.
+
+
+\subsection{Implementazione: ciclo principale: calcolo di $T(v_k)$ e dello jacobiano nel punto}
+
+Dopo aver esteso per simmetria il potenziale, viene risolto il
+problema diretto (con \lstinline{directSLP_inner1}). A questo punto è
+possibile calcolare $T(v_k)$ come differenza tra i primi $M$ autovalori
+calcolati e gli autovalori in ingresso.
+
+Per applicare il metodo di Newton server calcolare lo Jacobiano di $T$
+nel punto $v_k$. La formula viene ricavata derivando l'equazione di
+Sturm Liouville, dopo alcuni calcoli algebrici si arriva alla
+relazione
+\begin{equation*}
+  y_i ^T \der{V}{v_j} y_i = y_i ^T \der{\lambda _i}{v_j} y_i
+\end{equation*}
+dove $y_i$ è l'$i$-esimo autovettore relativo all'$i$-esimo autovalore
+$\lambda _i$, $v_j$ è il valore del potenziale nel punto $\xi_j$ e $V$
+è la matrice che ha sulla diagonale il valore del potenziale calcolato
+nei punti di griglia esteso per simmetria.
+
+Da questo si ricava che, utilizzando l'ortonormalità dei $y_i$, si ha
+\begin{equation*}
+  \der{\lambda _i}{v_j} = 2 ((y_i)_j) ^2
+\end{equation*}
+dove il fattore moltiplicativo $2$ deriva dal fatto che $v_j$ compare
+due volte nella matrice $V$ (per il discorso dell'estensione).
+
+Questa formula è implementata in
+\begin{lstlisting}
+  Ak =  2*(((Yk(2:M+1,1:M))').^2)
+\end{lstlisting}
+dove dobbiamo ricordarci che, per le condizioni al contorno di
+Dirichlet, dobbiamo ignorare i valori del potenziale in $0$
+
+\subsection{Implementazione: ciclo principale: regolarizzazione e
+  aggiornamento del potenziale}
+
+Visto il cattivo condizionamento dello Jacobiano $A_k$ si utilizza il
+metodo di Tikhonov per regolarizzare il problema 
+\begin{equation*}
+  \Delta v _k = A_k ^{-1} T(v_k)
+\end{equation*}
+
+Per questo passaggio si utilizzano i Regularization Tools di Per
+Christian Hansen che si trovano alla pagina
+\url{http://www.imm.dtu.dk/~pcha/Regutools/regutools.html} 
+
+Per prima cosa si calcola la scomposizione in valori singolari
+generalizzata dello jacobiano e della matrice di penalizzazione con
+l'istruzione
+\begin{lstlisting}
+  [ WW, SigmaM, XX, VV] = cgsvd(Ak,DiffMat) ;
+\end{lstlisting}
+
+Ora si può cercare il parametro di ottimizzazione ottimale con
+l'istruzione
+\begin{lstlisting}
+  reg_corner = l_curve(WW,SigmaM,Tk,'Tikh') ;
+\end{lstlisting}
+e poi ottenere la soluzione regolarizzata con
+\begin{lstlisting}
+  Deltavk = tikhonov(WW,SigmaM,XX,Tk,reg_corner) ;
+\end{lstlisting}
+
+Ora che è disponibile $\Delta v_k$ è possibile aggiornare il valore di
+\lstinline{vk} per la prossima iterazione
+\begin{lstlisting}
+  vk = vk - Deltavk ;
+\end{lstlisting}
+
+
 
 
 \end{document}
