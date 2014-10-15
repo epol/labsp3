@@ -38,11 +38,16 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     %%% hermite
     %scale = herroots(M);
     %scale = scale(M)/pi;
-    scale=1
-    [r,DiffMat] = herdif(M,2,scale) ;
+    %scale=1
+    %[r,DiffMat] = herdif(N+1,2,scale) ;
     %%% poly
     %DiffMat = poldif(Xi,2);
+    roots = herroots(M);
+    roots = pi / roots(M) * roots;
+    DiffMat = poldif(herroots(M),2);
     DiffMat = DiffMat(:,:,2) ;
+    %DiffMat = DiffMat *extender;
+    %DiffMat = DiffMat(2:M+1,:)
     %%% orginal differntiation matrix from the original problem
     %DiffMat = D * extender;
     %DiffMat = DiffMat(2:M+1,:);
