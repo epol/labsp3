@@ -39,20 +39,20 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     %scale = herroots(M);
     %scale = scale(M)/pi;
     %scale=1
-    %[r,DiffMat] = herdif(N+1,2,scale) ;
+    %[r,PenMat] = herdif(N+1,2,scale) ;
     %%% poly
-    %DiffMat = poldif(Xi,2);
+    %PenMat = poldif(Xi,2);
     roots = herroots(M);
     roots = pi / roots(M) * roots;
-    DiffMat = poldif(herroots(M),2);
-    DiffMat = DiffMat(:,:,2) ;
-    %DiffMat = DiffMat *extender;
-    %DiffMat = DiffMat(2:M+1,:)
+    PenMat = poldif(herroots(M),2);
+    PenMat = PenMat(:,:,2) ;
+    %PenMat = PenMat *extender;
+    %PenMat = PenMat(2:M+1,:)
     %%% orginal differntiation matrix from the original problem
-    %DiffMat = D * extender;
-    %DiffMat = DiffMat(2:M+1,:);
-    %DiffMat = D(2:M+1,2:M+1);
-    %DiffMat = eye(M);
+    %PenMat = D * extender;
+    %PenMat = PenMat(2:M+1,:);
+    %PenMat = D(2:M+1,2:M+1);
+    %PenMat = eye(M);
     
     % main cycle
     k = 0 ;
@@ -93,8 +93,8 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         %% svd and gsvd 
         %[ W, Sigma, U ] = csvd(Ak);
         %sizeak = size(Ak)
-        %sizediffmat = size(DiffMat)
-        [ WW, SigmaM, XX, VV] = cgsvd(Ak,DiffMat) ;
+        %sizePenMat = size(PenMat)
+        [ WW, SigmaM, XX, VV] = cgsvd(Ak,PenMat) ;
         %% find the optimal parameter
         [reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
         %% compute the transformation
@@ -114,7 +114,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     end
     
     % TODO give a nice rescaled output, or a function.
-    q = vk ;
+    q = extender * ((pi/L)^2 * vk ) ;
     
 end
 

@@ -96,7 +96,7 @@ dove vogliamo risolvere il problema diretto con potenziale $q$
 sull'intervallo $[-L,L]$ discretizzando su una griglia di $N+1$
 punti. La funzione ritorna il vettore degli autovalori $\Lambda$ e
 matrice $Y$ tale che la colonna $i$-esima rappresenta l'autofunzione
-corrispondente all'autovettore $i$-esimo calcolata nei punti griglia. 
+corrispondente all'autovalore $i$-esimo calcolata nei punti griglia. 
 
 Il primo passo è riscalare il potenziale dall'intervallo $[-L,L]$
 all'intervallo $[0,2\pi ]$ e poi calcolarlo su una griglia di $N+1$
@@ -123,18 +123,19 @@ funzione
 \begin{lstlisting}
   function [ E, Y] = directSLP_inner1(D,V)
 \end{lstlisting}
-che, data la matrice di differnziazione $D$ (che nell'articolo viene
-chiamata $D^{(2)}$) e il potenziale calcolato nei punti $V$, ritorna
-gli autovalori $E$ (non riscalati a $[-L,L]$) e il valore del potenziale nei
-punti griglia $Y$ (non riscalati $[-L,L]$).
+che, data la matrice di differnziazione \lstinline{D} (che
+nell'articolo viene chiamata $D^{(2)}$) e il potenziale calcolato nei
+punti \lstinline{V}, ritorna gli autovalori \lstinline{E} (non
+riscalati a $[-L,L]$) e il valore delle autofunzioni nei punti griglia
+\lstinline{Y}.
 
 La funzione \lstinline{directSLP_inner1}, dopo aver escluso i valori
 ai bordi $0,2\pi$ perché usiamo condizioni al contorno di Dirichlet,
 costruisce la matrice $M$ e ne calcola autovalori e autovettori
 utilizzando la funzione \lstinline{eig} di MATLAB.
 
-Le ultime operazioni che rimangonoda fare su \lstinline{directSLP}
-sono di riscalare autovalori.
+L'ultima operazione che rimane da fare su \lstinline{directSLP} è
+riscalare autovalori.
 
 
 \section{Problema inverso}
@@ -273,15 +274,15 @@ conteggio cicli.
 
 \subsection{Implementazione: ciclo principale: calcolo di $T(v_k)$ e dello jacobiano nel punto}
 
-Dopo aver esteso per simmetria il potenziale, viene risolto il
-problema diretto (con \lstinline{directSLP_inner1}). A questo punto è
-possibile calcolare $T(v_k)$ come differenza tra i primi $M$ autovalori
+Dopo aver esteso per simmetria il potenziale, risolviamo il problema
+diretto (con \lstinline{directSLP_inner1}). A questo punto possiamo
+calcolare $T(v_k)$ come differenza tra i primi $M$ autovalori
 calcolati e gli autovalori in ingresso.
 
-Per applicare il metodo di Newton server calcolare lo Jacobiano di $T$
-nel punto $v_k$. La formula viene ricavata derivando l'equazione di
-Sturm Liouville, dopo alcuni calcoli algebrici si arriva alla
-relazione
+Per applicare il metodo di Newton dobbiamo calcolare lo Jacobiano di
+$T$ nel punto $v_k$. La formula può essere ricavata derivando
+l'equazione di Sturm Liouville, infatti dopo alcuni calcoli algebrici
+si arriva alla relazione
 \begin{equation*}
   y_i ^T \der{V}{v_j} y_i = y_i ^T \der{\lambda _i}{v_j} y_i
 \end{equation*}
@@ -295,7 +296,8 @@ Da questo si ricava che, utilizzando l'ortonormalità dei $y_i$, si ha
   \der{\lambda _i}{v_j} = 2 ((y_i)_j) ^2
 \end{equation*}
 dove il fattore moltiplicativo $2$ deriva dal fatto che $v_j$ compare
-due volte nella matrice $V$ (per il discorso dell'estensione).
+due volte nella matrice $V$ (perché abbiamo esteso il potenziale con
+la simmetria).
 
 Questa formula è implementata in
 \begin{lstlisting}
@@ -313,18 +315,18 @@ metodo di Tikhonov per regolarizzare il problema
   \Delta v _k = A_k ^{-1} T(v_k)
 \end{equation*}
 
-Per questo passaggio si utilizzano i Regularization Tools di Per
+Per questo passaggio utilizziamo i Regularization Tools di Per
 Christian Hansen che si trovano alla pagina
-\url{http://www.imm.dtu.dk/~pcha/Regutools/regutools.html} 
+\url{http://www.imm.dtu.dk/~pcha/Regutools/regutools.html}
 
-Per prima cosa si calcola la scomposizione in valori singolari
+Per prima cosa calcoliamo la scomposizione in valori singolari
 generalizzata dello jacobiano e della matrice di penalizzazione con
 l'istruzione
 \begin{lstlisting}
   [ WW, SigmaM, XX, VV] = cgsvd(Ak,DiffMat) ;
 \end{lstlisting}
 
-Ora si può cercare il parametro di ottimizzazione ottimale con
+Ora possiamo cercare il parametro di ottimizzazione ottimale con
 l'istruzione
 \begin{lstlisting}
   reg_corner = l_curve(WW,SigmaM,Tk,'Tikh') ;
@@ -334,10 +336,23 @@ e poi ottenere la soluzione regolarizzata con
   Deltavk = tikhonov(WW,SigmaM,XX,Tk,reg_corner) ;
 \end{lstlisting}
 
-Ora che è disponibile $\Delta v_k$ è possibile aggiornare il valore di
+Ora che è disponibile $\Delta v_k$ possiamo aggiornare il valore di
 \lstinline{vk} per la prossima iterazione
 \begin{lstlisting}
   vk = vk - Deltavk ;
+\end{lstlisting}
+
+\subsection{Implemenatazione: fine ciclo e confezionamento dell'output}
+
+Il ciclo viene terminato quando viene raggiunto il numero massimo di
+iterazioni consentite \lstinline{Kmax} oppure quando la variazione
+\lstinline{Deltavk} è minore di \lstinline{tol * vk}, cioè ci stiamo
+spostando ``poco'' dal punto in cui siamo.
+
+Infine il vettore del valore del potenziale nei punti griglia viene
+riscalato all'intervallo iniziale ed esteso per simmetria.
+\begin{lstlisting}
+  q = extender * ((pi/L)^2 * vk ) ;
 \end{lstlisting}
 
 
