@@ -42,10 +42,10 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     %[r,PenMat] = herdif(N+1,2,scale) ;
     %%% poly
     %PenMat = poldif(Xi,2);
-    roots = herroots(M);
-    roots = pi / roots(M) * roots;
-    PenMat = poldif(herroots(M),2);
-    PenMat = PenMat(:,:,2) ;
+    %roots = herroots(M);
+    %roots = pi / roots(M) * roots;
+    %PenMat = poldif(herroots(M),2);
+    %PenMat = PenMat(:,:,2) ;
     %PenMat = PenMat *extender;
     %PenMat = PenMat(2:M+1,:)
     %%% orginal differntiation matrix from the original problem
@@ -53,6 +53,8 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     %PenMat = PenMat(2:M+1,:);
     %PenMat = D(2:M+1,2:M+1);
     %PenMat = eye(M);
+    PenMat = hermite_differentation_matrix(M);
+    
     
     % main cycle
     k = 0 ;
@@ -113,7 +115,6 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         pause
     end
     
-    % TODO give a nice rescaled output, or a function.
     q = extender * ((pi/L)^2 * vk ) ;
     
 end
