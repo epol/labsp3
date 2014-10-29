@@ -441,10 +441,28 @@ l'istruzione
 \begin{lstlisting}
   reg_corner = l_curve(WW,SigmaM,Tk,'Tikh') ;
 \end{lstlisting}
-e poi ottenere la soluzione regolarizzata con
+
+Da esperimenti su uno dei casi di prova si vede che questo metodo
+sceglie parametri di regolarizzazione troppo grandi e, quindi,
+regolarizza troppo. Per questo limitiamo la scelta del paramentro di
+regolarizzazione sostituendo la chiamata a \lstinline{l_curve} con
 \begin{lstlisting}
-  Deltavk = tikhonov(WW,SigmaM,XX,Tk,reg_corner) ;
+  reg_param = logspace(6,-4,600);
+  [x,rho,eta] = tikhonov(WW,SigmaM,XX,Tk,reg_param,vk);
+  reg_corner = l_corner(rho,eta,reg_param,WW,SigmaM,Tk);
 \end{lstlisting}
+
+Una volta ottenuto il parametro otteniamo la soluzione regolarizzata
+con il comando
+\begin{lstlisting}
+  Deltavk = tikhonov(WW,SigmaM,XX,Tk,reg_corner,vk) ;
+\end{lstlisting}
+che ha risolto il problema
+\[
+\lstinline{Deltavk} = \arg\min _{x} \pa{ \norm{\lstinline{Ak}x -
+    \lstinline{Tk}} ^2 + \lstinline{reg_corner}
+  \norm{\lstinline{DiffMat} \pa{ x - \lstinline{vk}}}^2 }
+\]
 
 Ora che è disponibile $\Delta v_k$ possiamo aggiornare il valore di
 \lstinline{vk} per la prossima iterazione
