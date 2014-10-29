@@ -30,8 +30,8 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
     %compute a matrix that extends the potential with symmetry
     extender = [ zeros(1,M) ; eye(M) ;  flipud(eye(M)) ; zeros(1,M)];
     
-    size(D)
-    size(extender)
+    %size(D)
+    %size(extender)
     
     % NEW try with library
     %% computer the differntation matrix
@@ -98,10 +98,20 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         %sizePenMat = size(PenMat)
         [ WW, SigmaM, XX, VV] = cgsvd(Ak,PenMat) ;
         %% find the optimal parameter
-        [reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
+        %[reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
+        %reg_corner = min(reg_corner,1e0);
+            
+        reg_param = logspace(6,-4,600);
+        [x,rho,eta] = tikhonov(WW,SigmaM,XX,Tk,reg_param,vk);
+        [reg_corner,rho_c,eta_c] = l_corner (rho,eta,reg_param,WW,SigmaM,Tk,'Tikh');
+        %reg_corner 
+        %[reg_corner,rho,eta,reg_param] = lcurve2(WW,SigmaM,Tk);
+        reg_params(k+1) = reg_corner ;
+        reg_corner
+        
         %% compute the transformation
-        Deltavk = tikhonov(WW,SigmaM,XX,Tk,reg_corner) ;
-        pause
+        Deltavk = tikhonov(WW,SigmaM,XX,Tk,reg_corner,vk) ;
+        %pause
         
         
         % Find Delta
@@ -111,11 +121,12 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         vk = vk - Deltavk ;
         k = k+1 ;
         %Deltavk >= tol*vk 
-        plot(vk)
-        pause
+        %plot(vk);
+        %pause
     end
-    
-    q = extender * ((pi/L)^2 * vk ) ;
+    k
+    plot(reg_params)
+    q = extender(2:end-1,:) * ((pi/L)^2 * vk )  ;
     
 end
 
