@@ -123,14 +123,14 @@ funzione
 \begin{lstlisting}
   function [ E, Y] = directSLP_inner1(D,V)
 \end{lstlisting}
-che, data la matrice di differnziazione \lstinline{D} (che
+che, data la matrice di differenziazione \lstinline{D} (che
 nell'articolo viene chiamata $D^{(2)}$) e il potenziale calcolato nei
-punti \lstinline{V}, ritorna gli autovalori \lstinline{E} (non
+punti \lstinline{V}, ritorna gli autovalori \lstinline{E} (\textbf{non}
 riscalati a $[-L,L]$) e il valore delle autofunzioni nei punti griglia
 \lstinline{Y}.
 
 La funzione \lstinline{directSLP_inner1}, dopo aver escluso i valori
-ai bordi $0,2\pi$ perché usiamo condizioni al contorno di Dirichlet,
+ai bordi $0,2\pi$ (perché usiamo condizioni al contorno di Dirichlet)
 costruisce la matrice $M$ e ne calcola autovalori e autovettori
 utilizzando la funzione \lstinline{eig} di MATLAB.
 
@@ -140,7 +140,7 @@ riscalare autovalori.
 
 \section{Problema inverso}
 
-Per risolvere il probelma inverso aggiungiamo l'ipotesi che il
+Per risolvere il problema inverso aggiungiamo l'ipotesi che il
 potenziale, definito su $[-L,L]$ deve essere simmetrico rispetto a
 $0$. 
 
@@ -187,8 +187,8 @@ Riscrivendo il problema diretto
   \end{pmatrix}
   = \lambda y
 \end{equation*}
-osseviamo che, essendo $y_0 = y_{2M+1} = 0$ perché abbiamo fissato
-condizioni al contorno di Dirichlet, nella relazione non compaiono i
+osseviamo che, essendo $y_0 = y_{2M+1} = 0$ (perché abbiamo fissato
+condizioni al contorno di Dirichlet), nella relazione non compaiono i
 valori di $v(\xi _0)$ e $v(\xi _{2M+1})$. Per simmetria abbiamo $v(\xi
 _i) = v(\xi _{2M+1-i})$, quindi il vettore incognito del nostro
 probelma è
@@ -196,12 +196,14 @@ probelma è
 v = 
 \begin{pmatrix}
   v_1 \\
+  v_2 \\
   \vdots \\
   v_M 
 \end{pmatrix}
 =
 \begin{pmatrix}
   v(\xi _1) \\
+  v(\xi _2) \\
   \vdots \\
   v(\xi _M )
 \end{pmatrix}
@@ -218,7 +220,7 @@ usare la matrice \lstinline{extender} così definita
              ];
 \end{lstlisting}
 \begin{equation*}
-  extender =
+  \lstinline{extender} =
   \begin{pmatrix}
     0 & & 0 \\
     1 & & 0 \\
@@ -231,8 +233,8 @@ usare la matrice \lstinline{extender} così definita
   \end{pmatrix}
 \end{equation*}
 
-Vediamo ora come è stato implementata la funzione per risolvere il
-probelma inverso
+Vediamo ora come è stata implementata la funzione per risolvere il
+probelma inverso.
 
 La funzione per calcolare il problema inverso è:
 \begin{lstlisting}
@@ -248,9 +250,9 @@ opzionale e rappresenta il potenziale iniziale da cui partire.
 \subsection{Implementazione: preliminari}
 
 Dopo aver incluso le librerie (\lstinline{regu} e
-\lstinline{dmsuite}), la funzione setta (se non è stato passato come
+\lstinline{dmsuite}), la funzione imposta (se non è stato passato come
 argomento) il potenziale iniziale a $0$, riscala il problema da
-$[-L,L]$ trasformando gli autovalori e si calcola i punti griglia.
+$[-L,L]$ trasformando gli autovalori e calcola i punti griglia.
 
 Vengono precalcolate le seguenti matrici:
 \begin{itemize}
@@ -265,11 +267,119 @@ Le prime due matrici sono semplici da costruire, per la prima basta
 usare la funzione \lstinline{directSLP_inner2} e per la seconda la
   costruzione è già stata illustrata precedentemente.
 
-Per la terza si fa BOH ???? TODO TODO TODO ma TODO un casino.
+Per la terza si utilizza la funzione
+\lstinline{hermite_differentation_matrix}.
 
 Prima di entrare nel ciclo vengongo inizializzate le variabili fra cui
 il vettore del potenziale candidato \lstinline{vk} e la variabile di
 conteggio cicli.
+
+\subsection{Implementazione: \lstinline{hermite_differentation_matrix}}
+
+La funzione
+\begin{lstlisting}
+  function D2 = hermite_differentation_matrix(N)
+\end{lstlisting}
+viene utilizzata per calcolare la matrice di differenziazione di
+Hermite del second'ordine.
+
+Per prima cosa vengono calcolate le radici dei polinomi di Hermite
+calcolando gli autovalori (opportunamente riscalati di $\sqrt{2}$)
+della matrice
+\begin{equation*}
+  \begin{pmatrix}
+    0 & \sqrt{1} & 0 & \dots & 0 \\
+    \sqrt{1} & 0 & \sqrt{2} & \ddots & \vdots \\
+    0 & \sqrt{2} & \ddots & \ddots & 0 \\
+    \vdots & \ddots & \ddots & 0 & \sqrt{N} \\
+    0 & \dots & 0 & \sqrt{N} & 0
+  \end{pmatrix}
+\end{equation*}
+
+Visto che nelle formule per le derivate compaiono i termini $t_i -t_j$
+viene calcolata una matrice \lstinline{minus} tale che
+\[ \lstinline{minus} _{i,j} = t_i - t_j \]
+
+Viene calcolata anche versione leggermente modificata
+\lstinline{minusplus}, che differisce da \lstinline{minus} perché gli
+zeri sulla diagonale di quest'ultima sono stati sostituiti da $1$ in
+modo da poter calcolare più agevolmente i prodotti.
+
+Per calcolare la matrice di differenziazione abbiamo bisogno di
+conoscere le derivate prime, seconde e terze dei polinomi di Lagrange
+centrati nelle radici di Hermite calcolate nei punti griglia.
+
+Il calcolo della derivata prima è facile usando la formula:
+\[ \pi ' (t_j) = \prod _{i\neq j} \pa{t_j - t_i} \]
+che si trasforma in un prodotto per righe di \lstinline{minusplus}
+
+La derivata seconda è data da:
+\[ \pi'' (t_j) = 2 \sum _{i\neq j} \prod _{
+    h\neq j, h\neq i
+  } (t_j - t_h)
+\]
+
+Il calcolo viene eseguito facendo variare $i\in 1,...,N$ e sommando
+ogni volta al risultato il prodotto delle righe di
+\lstinline{minusline} dove nella colonna $i$-esima è stato sostituito
+$1$ in tutte le righe tranne la $i$-esima dove è stato sostituito $0$.
+\begin{lstlisting}
+  for i = (1:N)
+    mask = ones(N,1);
+    mask(i) = 0;
+    minusplusMOD = minusplus;
+    minusplusMOD(:,i)= mask;
+    pi2T = pi2T + 2*(prod((minusplusMOD)'))';
+  end
+\end{lstlisting}
+
+Per la derivata terza la formula peggiora:
+\[ \pi ''' (t_k) = 3 \sum _{i\neq k} \sum _{j\neq k, j\neq i} \prod
+_{h\neq k, h\neq i, h\neq j} (t_k - t_h) \]
+
+La soluzione adattata per il calcolo è analoga alla precedente
+\begin{lstlisting}
+  for i = (1:N)
+    for j = (1:N)
+      if i ~= j
+        maski = ones(N,1);
+        maski(i) = 0;
+        maski(j) = 0;
+        maskj = ones(N,1);
+        maskj(i) = 0;
+        maskj(j) = 0;
+        minusplusMOD = minusplus;
+        minusplusMOD(:,i)= maski;
+        minusplusMOD(:,j)= maskj;
+        pi3T = pi3T + 3*(prod((minusplusMOD)'))';
+      end
+    end
+  end
+\end{lstlisting}
+dove \lstinline{maski} servono ad escludere dalla produttoria i
+fattori $(t_k - t_i)$ e $(t_k - t_j)$ e dalla sommatoria le righe
+$i$-esime e $j$-esime\footnote{In realtà impostare a zero le due righe
+  sia su \lstinline{maski} sia su \lstinline{maskj} è superfluo, ne
+  basta solo una delle due}.
+
+Ora che conosciamo le derivate dei polinomi di Lagrange possiamo
+calcolare le matrici di differenziazione di primo e secondo grado
+utilizzando le formule
+\[ d^{(1)} _{j,k} = \left\{
+  \begin{matrix}
+    \frac{\pi'(t_j)}{(t_j - t_k)\pi'(t_k)} & j\neq k \\
+    \frac{\pi''(t_k)}{2\pi'(t_k)} & j = k
+  \end{matrix}
+\right.
+\]
+\[ d^{(2)} _{j,k} = \left\{
+  \begin{matrix}
+    \frac{1}{t_j-t_k}\bra{\frac{\pi''(t_j)}{\pi'(t_k)} - 2 d^{(1)}
+      _{j,k} } & j\neq k \\
+    \frac{\pi'''(t_k)}{3\pi'(t_k)} & j = k
+  \end{matrix}
+\right.
+\]
 
 
 \subsection{Implementazione: ciclo principale: calcolo di $T(v_k)$ e dello jacobiano nel punto}
