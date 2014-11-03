@@ -70,6 +70,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         [ Ek, Yk] = directSLP_inner1(D,vext) ;
         
         Tk = Ek(1:M) - E ;
+        nT(k+1) = norm(Tk);
         
         %DEBUG
         normTk = norm(Tk)
@@ -101,7 +102,7 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         %[reg_corner,rho,eta,reg_param] = l_curve(WW,SigmaM,Tk,'Tikh') ;
         %reg_corner = min(reg_corner,1e0);
             
-        reg_param = logspace(6,-4,600);
+        reg_param = logspace(0,-3,600);
         [x,rho,eta] = tikhonov(WW,SigmaM,XX,Tk,reg_param,vk);
         [reg_corner,rho_c,eta_c] = l_corner (rho,eta,reg_param,WW,SigmaM,Tk,'Tikh');
         %reg_corner 
@@ -124,8 +125,11 @@ function q=inverseSLP(L,Lambda,Kmax,tol,v0)
         %plot(vk);
         %pause
     end
-    k
-    plot(reg_params)
+    clf
+    hold on
+    semilogy(reg_params)
+    semilogy(nT/max(nT)*max(reg_params),'r')
+    hold off
     q = extender(2:end-1,:) * ((pi/L)^2 * vk )  ;
     
 end
